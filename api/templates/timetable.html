@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Timetable</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+        h1 {
+            text-align: center;
+        }
+        .section {
+            margin-bottom: 30px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        table, th, td {
+            border: 1px solid black;
+        }
+        th, td {
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+    </style>
+</head>
+<body>
+
+<h1>Timetable</h1>
+
+<!-- Timeslots Section -->
+<div class="section">
+    <h1>zdzdz</h1>
+    <table>
+        <thead>
+            <tr>Time</tr>
+            <th>Time</th>
+
+        </thead>
+    </table>
+</div>
+<div class="section">
+    <h2>Timeslots</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Day of the Week</th>
+                <th>Start Time</th>
+                <th>End Time</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for timeslot in timetable.timeslots %}
+            <tr>
+                <td>{{ timeslot.id }}</td>
+                <td>{{ timeslot.day_of_week }}</td>
+                <td>{{ timeslot.start_time }}</td>
+                <td>{{ timeslot.end_time }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<!-- Rooms Section -->
+<div class="section">
+    <h2>Rooms</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Name</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for room in timetable.rooms %}
+            <tr>
+                <td>{{ room.id }}</td>
+                <td>{{ room.name }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<!-- Lessons Section -->
+<div class="section">
+    <h2>Lessons</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Subject</th>
+                <th>Teacher</th>
+                <th>Student Group</th>
+                <th>Timeslot</th>
+                <th>Room</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for lesson in timetable.lessons %}
+            <tr>
+                <td>{{ lesson.id }}</td>
+                <td>{{ lesson.subject }}</td>
+                <td>{{ lesson.teacher }}</td>
+                <td>{{ lesson.student_group }}</td>
+                <td>{{ lesson.timeslot }}</td>
+                <td>{{ lesson.room }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<!-- Score and Solver Status -->
+<div class="section">
+    <h2>Score and Solver Status</h2>
+    <p><strong>Score:</strong> {{ timetable.score }}</p>
+    <p><strong>Solver Status:</strong> {{ timetable.solver_status }}</p>
+</div>
+
+</body>
+</html>

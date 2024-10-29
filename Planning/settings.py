@@ -121,6 +121,11 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 #celery
 CELERY_RESULT_BACKEND = "redis://localhost:6379"
 CELERY_BROKER_URL = 'redis://localhost:6379'
+# Existing retry configuration (Celery 5.x)
+broker_connection_retry = True
+
+# New configuration for Celery 6.0 compatibility
+broker_connection_retry_on_startup = True
 
 
 # Redis settings

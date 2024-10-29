@@ -1,10 +1,9 @@
 import json
-import logging
 
 import redis as red
 from django.http import JsonResponse
 from django.shortcuts import render
-from timefold.solver import SolverJob, SolverStatus
+from timefold.solver import SolverStatus
 
 from Planning import settings
 from timefoldai.demo_data import generate_demo_data, DemoData
@@ -31,23 +30,22 @@ def index(request):
 def calculate():
     timetable = generate_demo_data(demo_data=DemoData(value='LARGE'))
     redis_client.set('ID', timetable.model_dump_json())
-    solver_manager.solve_and_listen('ID', timetable,
-                                    lambda solution: update_timetable('ID', solution))
-    status = solver_manager.get_solver_status('ID')
 
-    def update_timetable(problem_id: str, updated_timetable: Timetable):
-        global timetable
-        print(status)
-        if status == SolverStatus.SOLVING_ACTIVE:
-             timetable = updated_timetable
-        elif status == SolverStatus.NOT_SOLVING:
-             timetable = updated_timetable
-             redis_client.set(problem_id, updated_timetable.model_dump_json())
+    # Directly pass `update_timetable.delay` as the callback to Timefold's solver
+    solver_manager.solve_and_listen('ID', timetable, callback=lambda solution: update_timetable.delay('ID', solution))
 
+    print(solver_manager.get_solver_status('ID'))
+    print("Calculation task complete")
+
+
+@shared_task
+def update_timetable(problem_id: str, timetable: Timetable):
+    redis_client.set(problem_id, timetable.model_dump_json())
+    print(f"Timetable updated with status: {timetable.solver_status}")
 
 
 def get(request):
-    return JsonResponse(json.loads(redis_client.get('ID')), safe=False)
+    return JsonResponse(json.loads(redis_client.get('ID').decode('utf-8')), safe=False)
 
 
 def timetable_view(request):

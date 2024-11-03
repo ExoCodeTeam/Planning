@@ -9,13 +9,13 @@ from Planning import settings
 from timefoldai.demo_data import generate_demo_data, DemoData
 from timefoldai.domain import Timetable
 from timefoldai.solver import solver_manager
-from celery import shared_task
+from celery import app
 
 redis_client = red.StrictRedis(host=settings.REDIS_HOST, port=settings.REDIS_PORT, db=0)
 
 
 def index(request):
-    calculate.delay()
+    calculate()
     timetable_data_json = redis_client.get('ID')
 
     if timetable_data_json:
@@ -25,20 +25,18 @@ def index(request):
         timetable_data = None
         return render(request, 'loading.html')
 
-
-@shared_task
+@app.shared_task
 def calculate():
     timetable = generate_demo_data(demo_data=DemoData(value='LARGE'))
     redis_client.set('ID', timetable.model_dump_json())
 
-    # Directly pass `update_timetable.delay` as the callback to Timefold's solver
-    solver_manager.solve_and_listen('ID', timetable, callback=lambda solution: update_timetable.delay('ID', solution))
+    solver_manager.solve_and_listen('ID', timetable, lambda solution: update_timetable('ID', solution))
 
     print(solver_manager.get_solver_status('ID'))
     print("Calculation task complete")
 
 
-@shared_task
+
 def update_timetable(problem_id: str, timetable: Timetable):
     redis_client.set(problem_id, timetable.model_dump_json())
     print(f"Timetable updated with status: {timetable.solver_status}")
